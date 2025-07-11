@@ -53,7 +53,7 @@ const registerShop = async (req, res) => {
     shopName: shopName,
     ownerName: ownerName,
     email: email,
-    phone: Phone,
+    phone: phone,
     ownerAddress: ownerAddress,
     shopAddress: shopAddress,
     password: bcrypt.hashSync(password, 10),

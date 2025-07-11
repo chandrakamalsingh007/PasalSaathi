@@ -3,7 +3,7 @@ import {loginUser,registerShop} from "../Controller/shopController.js";
 
 const shopRouter = express.Router();
 
-userRouter.post("/register",registerShop)
-userRouter.post("/login",loginUser);
+shopRouter.post("/register",registerShop)
+shopRouter.post("/login",loginUser);
 
 export default shopRouter;
