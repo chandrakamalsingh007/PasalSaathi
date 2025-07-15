@@ -111,7 +111,7 @@ const loginUser = async (req, res) => {
 
   const token = jwt.sign({
     userId : findShop._id,
-    shopName : findShop.shopName
+    email : findShop.email
   }, process.env.JWT_SECRET_KEY,{
     expiresIn:"10d"
   })

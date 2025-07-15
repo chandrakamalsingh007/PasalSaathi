@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import shopRouter from "./src/Routes/shopRoute.js";
+import productRouter from "./src/Routes/productRoute.js";
 dotenv.config();
 
 // app config
@@ -26,6 +27,7 @@ mongoose.connect(process.env.DB_URL).then(() => {
 
 //api endpoints
 app.use("/api/shop",shopRouter); //http://localhost:3000/api/user
+app.use("/api/product",productRouter)
 
 app.get("/", (req,res)  => {
     res.send("API working");
