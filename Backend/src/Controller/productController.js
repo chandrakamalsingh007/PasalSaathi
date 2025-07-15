@@ -10,11 +10,9 @@ const addProduct = async (req, res) => {
     description,
     category,
     unit,
-    image,
     purchasePrice,
     sellingPrice,
     quantity,
-    shopId,
   } = req.body;
 
   const image_filename = req.file ? `${req.file.filename}` : null;
@@ -25,8 +23,7 @@ const addProduct = async (req, res) => {
     !unit ||
     !purchasePrice ||
     !sellingPrice ||
-    !quantity ||
-    !shopId
+    !quantity
   ) {
     return res.status(400).json({
       message: "Please provide all required fields.",
@@ -35,7 +32,7 @@ const addProduct = async (req, res) => {
 
   try {
     const selectedShop = await shopModel.findOne({
-      _id: shopId,
+      _id: req.user.id,
       email: req.user.email,
     });
 
@@ -44,7 +41,7 @@ const addProduct = async (req, res) => {
     }
 
     const existingProduct = await productModel.findOne({
-      shop: shopId,
+      shop: req.user.id,
       name: name.trim().toLowerCase(),
     });
 
@@ -56,7 +53,7 @@ const addProduct = async (req, res) => {
     }
 
     const addProduct = await productModel.create({
-      shop: shopId,
+      shop: req.user.id,
       name: name.trim().toLowerCase(),
       description: description,
       category: category,
@@ -90,18 +87,14 @@ const updateProduct = async (req, res) => {
     purchasePrice,
     sellingPrice,
     quantity,
-    shopId,
   } = req.body;
 
   const image_filename = req.file ? `${req.file.filename}` : null;
 
-  if (!shopId) {
-    return res.status(400).json({ message: "shop ID is required." });
-  }
 
   try {
     const selectedShop = await shopModel.findOne({
-      _id: shopId,
+      _id: req.user.id,
       email: req.user.email,
     });
 
@@ -109,7 +102,7 @@ const updateProduct = async (req, res) => {
       return res.status(403).json({ message: "Unauthorized or invalid shop." });
     }
 
-    const product = await productModel.findOne({ _id: id, shop: shopId });
+    const product = await productModel.findOne({ _id: id, shop: req.user.id });
     if (!product) {
       return res.status(404).json({ message: "Product not found." });
     }
@@ -137,14 +130,11 @@ const updateProduct = async (req, res) => {
 
 const deleteProduct = async (req, res) => {
   const { id } = req.params;
-  const {shopId} = req.query;
-  if (!shopId) {
-    return res.status(400).json({ message: "shop ID is required." });
-  }
+  
 
   try {
     const selectedShop = await shopModel.findOne({
-      _id: shopId,
+      _id: req.user.id,
       email: req.user.email,
     });
     if (!selectedShop) {
@@ -153,7 +143,7 @@ const deleteProduct = async (req, res) => {
 
     const product = await productModel.findOne({
       _id: id,
-      shop: shopId,
+      shop: req.user.id,
     });
     if (!product) {
       return res.status(404).json({ message: "Product not found." });
