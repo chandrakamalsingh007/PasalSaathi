@@ -9,7 +9,7 @@ const customerSchema = new mongoose.Schema({
   },
   name: { type: String, required: true, null: false },
   email: { type: String, required: true, null: false },
-  phone: { type: String, required: true, null: false },
+  phone: { type: Number, required: true, null: false },
   address: { type: String, required: true, null: false },
   customerNo: { type: Number, required: true, null: false },
   hashedId: { type: String, required: true, null: false },
