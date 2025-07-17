@@ -18,7 +18,7 @@ const registerShop = async (req, res) => {
     shopAddress,
     password,
   } = req.body;
-  const exits = await shopModel.findOne({ email });
+  
   if (
     !shopName ||
     !ownerName ||
@@ -40,6 +40,7 @@ const registerShop = async (req, res) => {
   if(!validatePhoneNumber(phone)){
     return res.json({ success: false, message: "Please enter a valid Phone No." });
   }
+  const exits = await shopModel.findOne({ email });
 
   if (exits) {
     return res.json({ success: false, message: "User already exits" });

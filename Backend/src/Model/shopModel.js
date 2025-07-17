@@ -12,5 +12,5 @@ const shopSchema = new mongoose.Schema({
 
 });
 
-const shopModel = mongoose.models.User || mongoose.model("Shop",shopSchema);
+const shopModel = mongoose.models.Shop || mongoose.model("Shop",shopSchema);
 export default shopModel;
