@@ -32,35 +32,78 @@ const createBill = async(req,res) => {
         }
 
         let totalAmount = 0;
+        const productNamesSet = new Set();
         const purchasedItems = await Promise.all(
             billItems.map(async (item) => {
+                const name = item.name.trim().toLowerCase();
+
+                if(productNamesSet.has(name)){
+                    return res.json({
+                        message:`Duplicate product : ${name}`,
+                    })
+                }
+                productNamesSet.add(name);
+
                 const product = await productModel.findOne({
                     shop: req.user.id,
-                    name : item.name.trim().toLowerCase(),
+                    name : name,
                 });
 
-                if(!product) throw new Error (`Product ${item.name} not found`);
+                if(!product) {
+                    return res.status(404).json({
+                        message:`Product ${item.name} not found`,
+                    });
+
+                };
+                if (product.quantity <= product.lowStockThreshold){
+                    return res.json({
+                        message:`Low stock alert for ${product.name}: ${product.quantity} left`
+                    })
+                };
+
+                if (product.quantity < item.quantity){
+                    return res.json({
+                        message: `Insufficient stock for ${item.name}`
+                    })
+                }
 
                 const price = product.sellingPrice;
                 const subtotal = item.quantity * price
+                totalAmount += subtotal;
+
+                product.quantity -= item.quantity;
+                await product.save();
+
+                return {
+                    product : product._id,
+                    quantity : item.quantity,
+                    price : price,
+                }
             })
         )
+
+        totalAmount -= discount;
+        const dueAmount = totalAmount - paidAmount;
+
         const bill = await billModel.create({
             shop: req.user.id,
             customer: customerId,
-            billItems:billItems,
+            billItems:purchasedItems,
             toatalAmount : totalAmount,
-            discount : disCount,
+            discount : discount,
             paidAmount : paidAmount,
             dueAmount : dueAmount,
             isQuickBill : false,
         });
 
         if (dueAmount > 0){
-            await customerModel.findByIdAndUpdate(customerId,{})
+            await customerModel.findByIdAndUpdate(customerId,{
+                $inc : { totalDue : dueAmount},
+            })
         }
     } catch (err) {
-        
+        console.error("Bill Error:", err);
+    res.status(500).json({ message: "Server error while generating bill" });
     }
 }
 
